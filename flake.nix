@@ -138,7 +138,7 @@
                     enable = true;
                     crates.enable = true;
                   };
-                  csharp.enable = false;
+                  csharp.enable = true;
 
                   # Nim LSP is broken on Darwin and therefore
                   # should be disabled by default. Users may still enable
