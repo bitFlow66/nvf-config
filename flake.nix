@@ -103,7 +103,7 @@
                   formatOnSave = true;
                   lspkind.enable = false;
                   lightbulb.enable = true;
-                  lspsaga.enable = false;
+                  lspsaga.enable = false; # Look into this!!
                   trouble.enable = true;
                   lspSignature.enable = true;
                   otter-nvim.enable = true;
@@ -232,7 +232,7 @@
                   motion = {
                     hop.enable = true;
                     leap.enable = true;
-                    precognition.enable = true;
+                    precognition.enable = false;
                   };
                   images = {
                     image-nvim.enable = true;
