@@ -235,7 +235,7 @@
                     precognition.enable = false;
                   };
                   images = {
-                    image-nvim.enable = true;
+                    image-nvim.enable = false; # Does not work for wsl, because 'ueberzug' is missing
                   };
                 };
 
@@ -277,7 +277,7 @@
                 assistant = {
                   chatgpt.enable = false;
                   copilot = {
-                    enable = false;
+                    enable = true;
                     cmp.enable = true;
                   };
                 };
