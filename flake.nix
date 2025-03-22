@@ -50,27 +50,6 @@
                     action = "<C-w>l";
                   }
 
-                  # Move between buffers
-                  {
-                    key = "<S-l>";
-                    mode = ["n" "x"];
-                    silent = true;
-                    action = ":bn<CR>";
-                  }
-                  {
-                    key = "<S-h>";
-                    mode = ["n" "x"];
-                    silent = true;
-                    action = ":bp<CR>";
-                  }
-                  # Close buffer
-                  {
-                    key = "<leader>bx";
-                    mode = "n";
-                    silent = true;
-                    action = ":bd<CR>";
-                  }
-
                   # Visual mode
                   # Move highlighted lines and re-highlight
                   {
@@ -95,13 +74,15 @@
                   logFile = "/tmp/nvim.log";
                 };
 
+                options.shiftwidth = 2;
+
                 spellcheck = {
                   enable = true;
                 };
 
                 lsp = {
                   formatOnSave = true;
-                  lspkind.enable = false;
+                  lspkind.enable = true;
                   lightbulb.enable = true;
                   lspsaga.enable = false; # Look into this!!
                   trouble.enable = true;
@@ -132,7 +113,10 @@
                   bash.enable = true;
                   clang.enable = true;
                   lua.enable = true;
-                  zig.enable = true;
+                  zig = {
+                    enable = true;
+                    lsp.package = ["zls"];
+                  };
                   python.enable = true;
                   rust = {
                     enable = true;
@@ -175,7 +159,10 @@
 
                 autopairs.nvim-autopairs.enable = true;
 
-                autocomplete.nvim-cmp.enable = true;
+                autocomplete = {
+                  nvim-cmp.enable = true;
+                  blink-cmp.friendly-snippets.enable = true;
+                };
                 snippets.luasnip.enable = true;
 
                 filetree = {
@@ -185,7 +172,15 @@
                 };
 
                 tabline = {
-                  nvimBufferline.enable = true;
+                  nvimBufferline = {
+                    enable = true;
+                    setupOpts.options.numbers = "none";
+                    mappings = {
+                      cycleNext = "<S-l>";
+                      cyclePrevious = "<S-h>";
+                      closeCurrent = "<leader>bx";
+                    };
+                  };
                 };
 
                 treesitter.context.enable = true;
