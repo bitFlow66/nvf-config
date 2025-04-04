@@ -160,7 +160,12 @@
                 autopairs.nvim-autopairs.enable = true;
 
                 autocomplete = {
-                  nvim-cmp.enable = true;
+                  nvim-cmp = {
+                    enable = true;
+                    sourcePlugins = [
+                      "codecompanion-nvim"
+                    ];
+                  };
                   blink-cmp.friendly-snippets.enable = true;
                 };
                 snippets.luasnip.enable = true;
@@ -221,7 +226,6 @@
                   yanky-nvim.enable = false;
                   icon-picker.enable = false;
                   surround.enable = true;
-                  leetcode-nvim.enable = false;
                   multicursors.enable = true;
 
                   motion = {
@@ -274,6 +278,19 @@
                   copilot = {
                     enable = true;
                     cmp.enable = true;
+                  };
+                  codecompanion-nvim = {
+                    enable = true;
+                    setupOpts = {
+                      opts = {
+                        send_code = true;
+                      };
+                      strategies = {
+                        inline.adapter = "ollama";
+                        chat.adapter = "ollama";
+                        cmd.adpater = "ollama";
+                      };
+                    };
                   };
                 };
 
