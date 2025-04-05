@@ -229,8 +229,8 @@
                   multicursors.enable = true;
 
                   motion = {
-                    hop.enable = true;
-                    leap.enable = true;
+                    leap.enable = false;
+                    flash-nvim.enable = true;
                     precognition.enable = false;
                   };
                   images = {
