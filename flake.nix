@@ -285,6 +285,7 @@
                       opts = {
                         send_code = true;
                       };
+                      display.chat.auto_scroll = true;
                       strategies = {
                         inline.adapter = "ollama";
                         chat.adapter = "ollama";
