@@ -16,6 +16,20 @@
           modules = [
             {
               config.vim = {
+                extraPlugins = with inputs.nixpkgs.legacyPackages.x86_64-linux.vimPlugins; {
+                  # Path autocompletion
+                  "cmp-path" = {
+                    package = cmp-path;
+                    setup = ''
+                      require'cmp'.setup {
+                        sources = {
+                          { name = 'path' }
+                        }
+                      }
+                    '';
+                  };
+                };
+
                 keymaps = [
                   {
                     key = "<C-n>";
@@ -249,16 +263,19 @@
                 };
 
                 utility = {
-                  vim-wakatime.enable = false;
                   diffview-nvim.enable = true;
-                  yanky-nvim.enable = false;
-                  icon-picker.enable = false;
                   surround.enable = true;
                   multicursors.enable = true;
+                  sleuth.enable = true;
+
+                  vim-wakatime.enable = false;
+                  yanky-nvim.enable = false;
+                  icon-picker.enable = false;
 
                   motion = {
-                    leap.enable = false;
                     flash-nvim.enable = true;
+
+                    leap.enable = false;
                     precognition.enable = false;
                   };
                   images = {
@@ -267,8 +284,9 @@
                 };
 
                 notes = {
-                  neorg.enable = false;
                   todo-comments.enable = true;
+
+                  neorg.enable = false;
                 };
 
                 terminal = {
