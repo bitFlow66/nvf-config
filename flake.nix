@@ -97,6 +97,12 @@
                 viAlias = true;
                 vimAlias = true;
                 hideSearchHighlight = true;
+
+                clipboard = {
+                  registers = ["unnamedplus"];
+                  providers.wl-copy.enable = true;
+                };
+
                 debugMode = {
                   enable = false;
                   level = 16;
