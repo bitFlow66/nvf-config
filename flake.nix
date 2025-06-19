@@ -66,8 +66,23 @@
                   }
                 ];
 
+                autocmds = [
+                  {
+                    enable = true;
+                    desc = "Highlight yanks on copy";
+                    pattern = ["*"];
+                    event = ["TextYankPost"];
+                    callback = inputs.nixpkgs.lib.generators.mkLuaInline ''
+                      function()
+                        vim.highlight.on_yank({ timeout = 200 })
+                      end
+                    '';
+                  }
+                ];
+
                 viAlias = true;
                 vimAlias = true;
+                hideSearchHighlight = true;
                 debugMode = {
                   enable = false;
                   level = 16;
@@ -187,7 +202,21 @@
                   };
                 };
 
-                treesitter.context.enable = true;
+                treesitter = {
+                  context.enable = true;
+                  textobjects = {
+                    enable = true;
+                    setupOpts = {
+                      select = {
+                        enable = true;
+                        keymaps = {
+                          af = "@function.outer";
+                        };
+                        lookahead = true;
+                      };
+                    };
+                  };
+                };
 
                 binds = {
                   whichKey.enable = true;
