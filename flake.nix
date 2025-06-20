@@ -120,11 +120,12 @@
                   formatOnSave = true;
                   lspkind.enable = true;
                   lightbulb.enable = true;
-                  lspsaga.enable = false; # Look into this!!
                   trouble.enable = true;
                   lspSignature.enable = true;
                   otter-nvim.enable = true;
                   nvim-docs-view.enable = true;
+
+                  lspsaga.enable = false;
                 };
 
                 debugger = {
@@ -156,7 +157,10 @@
                     enable = true;
                     crates.enable = true;
                   };
-                  csharp.enable = true;
+                  csharp = {
+                    enable = true;
+                    lsp.package = ["csharp-ls"];
+                  };
 
                   # Nim LSP is broken on Darwin and therefore
                   # should be disabled by default. Users may still enable
@@ -230,7 +234,22 @@
                       select = {
                         enable = true;
                         keymaps = {
-                          af = "@function.outer";
+                          "af" = {
+                            query = "@function.outer";
+                            desc = "function";
+                          };
+                          "if" = {
+                            query = "@function.inner";
+                            desc = "function";
+                          };
+                          "ac" = {
+                            query = "@class.outer";
+                            desc = "class";
+                          };
+                          "ic" = {
+                            query = "@class.inner";
+                            desc = "class";
+                          };
                         };
                         lookahead = true;
                       };
@@ -256,8 +275,10 @@
                 };
 
                 dashboard = {
-                  dashboard-nvim.enable = false;
-                  alpha.enable = true;
+                  startify = {
+                    enable = true;
+                    changeToVCRoot = true;
+                  };
                 };
 
                 notify = {
@@ -265,7 +286,12 @@
                 };
 
                 projects = {
-                  project-nvim.enable = true;
+                  project-nvim = {
+                    enable = true;
+                    setupOpts = {
+                      manual_mode = false;
+                    };
+                  };
                 };
 
                 utility = {
@@ -348,7 +374,13 @@
                 };
 
                 session = {
-                  nvim-session-manager.enable = false;
+                  nvim-session-manager = {
+                    enable = false;
+                    setupOpts = {
+                      autoload_mode = "Disabled";
+                      sessions_dir = "~/.vim/session";
+                    };
+                  };
                 };
 
                 gestures = {
