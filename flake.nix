@@ -20,13 +20,6 @@
                   # Path autocompletion
                   "cmp-path" = {
                     package = cmp-path;
-                    setup = ''
-                      require'cmp'.setup {
-                        sources = {
-                          { name = 'path' }
-                        }
-                      }
-                    '';
                   };
                 };
 
@@ -200,8 +193,15 @@
                 autocomplete = {
                   nvim-cmp = {
                     enable = true;
+                    sources = {
+                      path = "path";
+                      buffer = "[Buffer]";
+                      nvim-cmp = null;
+                    };
+
                     sourcePlugins = [
                       "codecompanion-nvim"
+                      "cmp-path"
                     ];
                   };
                   blink-cmp.friendly-snippets.enable = true;
