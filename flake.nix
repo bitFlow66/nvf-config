@@ -194,14 +194,13 @@
                   nvim-cmp = {
                     enable = true;
                     sources = {
-                      path = "path";
-                      buffer = "[Buffer]";
                       nvim-cmp = null;
+                      buffer = "[Buffer]";
+                      path = "[Path]";
                     };
 
                     sourcePlugins = [
                       "codecompanion-nvim"
-                      "cmp-path"
                     ];
                   };
                   blink-cmp.friendly-snippets.enable = true;
