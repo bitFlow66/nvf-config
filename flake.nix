@@ -228,7 +228,7 @@
                 treesitter = {
                   context.enable = true;
                   textobjects = {
-                    enable = true;
+                    enable = false;
                     setupOpts = {
                       select = {
                         enable = true;
