@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
     nvf.url = "github:notashelf/nvf";
   };
 
@@ -228,7 +228,7 @@
                 treesitter = {
                   context.enable = true;
                   textobjects = {
-                    enable = false;
+                    enable = true;
                     setupOpts = {
                       select = {
                         enable = true;
