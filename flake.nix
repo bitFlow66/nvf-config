@@ -143,16 +143,16 @@
                   lua.enable = true;
                   zig = {
                     enable = true;
-                    lsp.package = ["zls"];
+                    # lsp.package = ["zls"];
                   };
                   python.enable = true;
                   rust = {
                     enable = true;
-                    crates.enable = true;
+                    extensions.crates-nvim.enable = true;
                   };
                   csharp = {
                     enable = true;
-                    lsp.package = ["csharp-ls"];
+                    # lsp.package = ["csharp-ls"];
                   };
 
                   # Nim LSP is broken on Darwin and therefore
