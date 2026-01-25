@@ -18,9 +18,9 @@
               config.vim = {
                 extraPlugins = with inputs.nixpkgs.legacyPackages.x86_64-linux.vimPlugins; {
                   # Path autocompletion
-                  "cmp-path" = {
-                    package = cmp-path;
-                  };
+                  # "cmp-path" = {
+                  #   package = cmp-path;
+                  # };
                 };
 
                 keymaps = [
@@ -269,8 +269,9 @@
                   gitsigns.codeActions.enable = false; # throws an annoying debug message
                 };
 
+                # Enable again when https://github.com/gorbit99/codewindow.nvim/pull/86 is merged
                 minimap = {
-                  codewindow.enable = true; # lighter, faster, and uses lua for configuration
+                  codewindow.enable = false; # lighter, faster, and uses lua for configuration
                 };
 
                 dashboard = {
