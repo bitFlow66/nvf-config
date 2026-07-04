@@ -63,8 +63,7 @@ neovimConfiguration. No registration needed — create a file and `git add` it.
   `{ inputs, outputs, lib }`.
 - **Feature files** — Standard Nix modules: `{ config, pkgs, lib, ... }: { config.vim = { ... }; }`.
 - **`flake.nix`** — Aggregates features via `lib.nix`, builds Neovim via
-  `nvf.lib.neovimConfiguration`. Exposes `packages.default`, `nixosModules.default`,
-  and `homeManagerModules.default`.
+  `nvf.lib.neovimConfiguration`. Exposes `packages.default` and `nixosModules.default`.
 
 ## Code Style Guidelines
 
