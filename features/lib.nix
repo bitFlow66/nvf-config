@@ -1,13 +1,12 @@
 # Dendritic feature aggregation for nvf.
 #
-# Every .nix file under ./features (except lib.nix) is auto-discovered by
-# default and returned as a list of module paths. Callers may provide an
-# explicit include list for profiles. Each path contributes to config.vim.*.
+# Every .nix file under ./features (except lib.nix) is discovered. Profiles
+# provide explicit include lists; unknown feature names fail evaluation.
 #
 # Usage in flake.nix:
 #   featureLib = import ./features/lib.nix { inherit lib; };
-#   featureModules = featureLib.mkModules { };
-#   nvf.lib.neovimConfiguration { modules = featureModules; ... };
+#   fullModules = featureLib.mkModules { include = [ "core.nix" ]; };
+#   nvf.lib.neovimConfiguration { modules = fullModules; ... };
 {lib}: let
   inherit (lib) filterAttrs hasSuffix;
 in {
@@ -24,8 +23,13 @@ in {
       )
       entries;
     sortedNames = builtins.sort builtins.lessThan (builtins.attrNames files);
+    unknown =
+      if include == null
+      then []
+      else builtins.filter (name: !(builtins.hasAttr name files)) include;
   in
-    map
-    (name: ./. + "/${name}")
-    sortedNames;
+    assert lib.assertMsg (unknown == []) "Unknown NVF features: ${builtins.concatStringsSep ", " unknown}";
+      map
+      (name: ./. + "/${name}")
+      sortedNames;
 }

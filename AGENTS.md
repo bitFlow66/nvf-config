@@ -6,11 +6,11 @@
 # Build the Neovim configuration (no install)
 nix build .#default
 
-# Build the slim profile for vscode-neovim
-nix build .#vscode
+# Build the vsCodeSlim profile for vscode-neovim
+nix build .#vsCodeSlim
 
-# Exercise the slim profile's generated-init startup contract
-nix build .#checks.x86_64-linux.vscode
+# Exercise both profiles' shared editing and startup contracts
+nix build .#checks.x86_64-linux.vsCodeSlim .#checks.x86_64-linux.full
 
 # Run the configured Neovim (build + execute)
 nix run .
@@ -22,7 +22,8 @@ nix flake update
 nix flake check
 ```
 
-This repo has **no test framework, no linter, no typechecker**. Validation uses `nix flake check`, package builds, and the focused VS Code profile check.
+Validation uses `nix flake check`, package builds, and headless editing checks for
+both profiles. There is no separate test framework, linter, or typechecker.
 
 ## Repository Structure
 
@@ -37,12 +38,15 @@ This repo has **no test framework, no linter, no typechecker**. Validation uses 
 │   ├── languages.nix      # vim.languages.*
 │   ├── lsp.nix            # vim.lsp.*, debugger
 │   ├── completion.nix     # autocomplete, snippets
-│   ├── treesitter.nix     # context, textobjects
+│   ├── treesitter.nix     # shared parsers, textobjects
+│   ├── treesitter-context.nix # standalone context UI
+│   ├── window-keymaps.nix # standalone filetree/window bindings
 │   ├── telescope.nix
 │   ├── git.nix            # gitsigns
 │   ├── filetree.nix       # neo-tree
 │   ├── assistant.nix      # copilot, codecompanion
-│   ├── utility.nix        # surround, multicursors, flash, sleuth
+│   ├── utility.nix        # multicursors, flash, sleuth
+│   ├── surround.nix       # shared surround editing
 │   ├── notes.nix          # todo-comments
 │   ├── terminal.nix       # toggleterm, lazygit
 │   ├── binds.nix          # whichKey, cheatsheet
@@ -52,7 +56,7 @@ This repo has **no test framework, no linter, no typechecker**. Validation uses 
 │   ├── gestures.nix       # gesture-nvim (disabled)
 │   └── session.nix        # nvim-session-manager (disabled)
 ├── profiles/
-│   └── vscode/             # explicit slim-profile modules, not auto-discovered
+│   └── vsCodeSlim.nix      # explicit VS Code overrides only
 ├── docs/
 │   └── adding-a-feature.md
 ├── AGENTS.md
@@ -61,16 +65,24 @@ This repo has **no test framework, no linter, no typechecker**. Validation uses 
 
 ## Architecture
 
-**Dendritic Pattern** adapted for nvf. Features are auto-discovered `.nix` files
+**Dendritic Pattern** adapted for nvf. Features are discovered `.nix` files
 in `features/`. Each feature contributes to `config.vim.*` and is composed via
-neovimConfiguration. No registration needed — create a file and `git add` it.
+neovimConfiguration. The `full` and `vsCodeSlim` compositions in `flake.nix`
+explicitly select features. Add a new feature to the intended selections; unknown
+names fail evaluation. New files must be staged for Git-backed flake evaluation,
+or tested with `path:.` without staging.
+
+Keep reusable behavior in `features/`, not profile modules. All VS Code-specific
+overrides belong in `profiles/vsCodeSlim.nix`. Both profiles run the same editing
+regression script. NVF's pinned textobjects module emits an obsolete setup API;
+the shared Treesitter feature replaces that setup with the current plugin API.
 
 - **`features/lib.nix`** — Auto-discovery engine. `builtins.readDir` finds all
-  `.nix` files (excluding `lib.nix`), imports and instantiates each with
-  `{ inputs, outputs, lib }`.
+  `.nix` files (excluding `lib.nix`) and returns validated selected module paths.
 - **Feature files** — Standard Nix modules: `{ config, pkgs, lib, ... }: { config.vim = { ... }; }`.
 - **`flake.nix`** — Aggregates features via `lib.nix`, builds Neovim via
-  `nvf.lib.neovimConfiguration`. Exposes `packages.default` and `nixosModules.default`.
+   `nvf.lib.neovimConfiguration`. Exposes `packages.full`, `packages.vsCodeSlim`,
+   `packages.default` (full), and full-profile NixOS/Home Manager modules.
 
 ## Code Style Guidelines
 

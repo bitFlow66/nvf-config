@@ -1,17 +1,23 @@
 # Feature: core
 # Basic Neovim behaviour: aliases, clipboard, global options, spellcheck.
-{ config, pkgs, lib, ... }: {
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   config.vim = {
     viAlias = true;
     vimAlias = true;
     hideSearchHighlight = true;
 
     clipboard = {
-      registers = ["unnamedplus"];
+      registers = "unnamedplus";
       providers.wl-copy.enable = true;
     };
 
     options.shiftwidth = 2;
+    globals.mapleader = " ";
 
     spellcheck.enable = true;
 

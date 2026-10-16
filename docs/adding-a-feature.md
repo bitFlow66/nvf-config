@@ -1,13 +1,16 @@
 # Adding a New Feature Module
 
 A **feature** is a single-concern Nix module that owns a slice of `config.vim.*`.
-Features are auto-discovered — just create a `.nix` file in `features/` and
-`git add` it. No registration needed.
+Features are discovered in `features/` and explicitly selected by the `full` and
+`vsCodeSlim` compositions in `flake.nix`. Shared behavior belongs in features;
+VS Code-specific overrides belong only in `profiles/vsCodeSlim.nix`.
 
 ## 1. Create the feature file
 
 Add a `.nix` file under `features/`. The filename becomes the feature's identity
-(minus the `.nix` suffix). It is auto-discovered on the next evaluation.
+(minus the `.nix` suffix). Add it to the intended profile selections in
+`flake.nix`. Unknown selections fail evaluation. Add new files to Git before
+using a Git-backed flake, or use `path:.` to test untracked files without staging.
 
 Minimal shape:
 
@@ -112,10 +115,14 @@ Run the standard validation:
 
 ```bash
 nix build .#default        # build the Neovim package
-nix flake check            # full flake evaluation check
+nix build .#checks.x86_64-linux.full .#checks.x86_64-linux.vsCodeSlim
+nix flake check --no-build # evaluate all checks
 ```
 
-Both will catch type errors and missing options at evaluation time.
+The profile checks run the same C# inner/outer function/class and
+operator-pending textobject tests. They also assert the VS Code-specific
+inclusions and exclusions. Split features where profiles need independent
+capabilities rather than copying implementations into profile modules.
 
 ## 6. Consuming from nixos-config
 

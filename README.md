@@ -8,24 +8,36 @@
 
 ## Package profiles
 
-- `packages.x86_64-linux.default` is the full standalone configuration with its
+- `packages.x86_64-linux.full` (also `default`) is the full standalone configuration with its
   existing language tooling, Neovim UI, aliases, and clipboard provider.
-- `packages.x86_64-linux.vscode` is a separate slim profile for the
+- `packages.x86_64-linux.vsCodeSlim` is the VS Code profile for the
   VSCode Neovim extension. It provides shared editing defaults, comments,
   surround, and Treesitter text objects while leaving language services,
-  completion, debugging, clipboard, and editor UI to VS Code.
-- The slim package exposes its generated init file as
+  completion, debugging, clipboard integration, and editor UI to VS Code.
+- The `vsCodeSlim` package exposes its generated init file as
   `passthru.initLua`. Configure the extension's Linux executable path to
   `${package}/bin/nvim` and its `neovimInitVimPaths.linux` setting to that file.
 - In Remote WSL, run the extension in the workspace extension host and install
   the VS Code WSL extension on the Windows client. Do not enable the extension's
   `useWSL` option when Neovim itself runs in the NixOS workspace host.
 
-Validate the slim package and its `-u` startup path with:
+Both profiles explicitly select reusable modules from `features/` in `flake.nix`.
+Core defaults, visual indentation mappings, comments, surround, parsers,
+textobjects, and binding helpers have one shared implementation. Only
+`profiles/vsCodeSlim.nix` owns VS Code-specific overrides and integration mappings.
+It disables standalone aliases, the Wayland clipboard provider, Treesitter
+highlighting/indentation, and cheatsheet UI. Standalone window navigation,
+Treesitter context, and language tooling are separate features selected only by
+`full`.
+
+Which-key is included in both profiles; its popup usability in VSCode Neovim
+requires interactive verification and is not established by headless loading.
+
+Validate both compositions and their generated-init startup paths with:
 
 ```bash
-nix build .#vscode
-nix build .#checks.x86_64-linux.vscode
+nix build .#vsCodeSlim
+nix build .#checks.x86_64-linux.vsCodeSlim .#checks.x86_64-linux.full
 ```
 
 ## Installed languages
@@ -53,14 +65,16 @@ nix build .#checks.x86_64-linux.vscode
 | **core** | vi/vim alias, wl-clipboard, spellcheck |
 | **filetree** | neo-tree |
 | **git** | gitsigns |
-| **keymaps** | custom bindings (filetree, window nav) |
+| **keymaps** | shared visual indentation bindings |
+| **window-keymaps** | standalone filetree and window navigation bindings |
 | **lsp** | format-on-save, lspkind, trouble, signature, docs-view, DAP debugger |
 | **notes** | todo-comments |
 | **projects** | project-nvim |
 | **telescope** | telescope |
 | **terminal** | toggleterm, lazygit |
-| **treesitter** | context, textobjects |
+| **treesitter** | shared parsers and function/class textobjects |
+| **treesitter-context** | standalone syntax context UI |
 | **ui** | catppuccin, lualine, bufferline, startify, indent-blankline, notify, navbuddy, smartcolumn, borders |
 | **utility** | multicursors, flash, sleuth, diffview |
 | **surround** | nvim-surround |
-| **VS Code profile** | Slim modal-editing package; VS Code owns language services, completion, clipboard, debugging, and editor UI |
+| **vsCodeSlim profile** | Shared editing features plus explicit VS Code overrides; VS Code owns language services, completion, clipboard, debugging, and editor UI |
