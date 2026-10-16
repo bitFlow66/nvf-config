@@ -1,7 +1,12 @@
 # Feature: ui
 # Visual appearance: theme, statusline, dashboard, tabline, borders, and
 # decorative plugins.
-{ config, pkgs, lib, ... }: {
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   config.vim = {
     theme = {
       enable = true;
@@ -12,7 +17,11 @@
 
     statusline.lualine = {
       enable = true;
-      theme = "catppuccin";
+      setupOpts.options.theme = "catppuccin";
+      integrations.breadcrumbs = {
+        navbuddy.enable = true;
+        nvim-navic.enable = true;
+      };
     };
 
     visuals = {
@@ -48,10 +57,6 @@
       colorizer.enable = true;
       modes-nvim.enable = false; # the theme looks terrible with catppuccin
       illuminate.enable = true;
-      breadcrumbs = {
-        enable = true;
-        navbuddy.enable = true;
-      };
       smartcolumn = {
         enable = true;
         setupOpts.custom_colorcolumn = {
