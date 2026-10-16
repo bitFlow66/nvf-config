@@ -1,24 +1,31 @@
 # Dendritic feature aggregation for nvf.
 #
-# Every .nix file under ./features (except lib.nix) is auto-discovered and
-# returned as a list of module paths. Each path is a standard Nix module
-# that contributes to config.vim.* — no registration needed, just create the
-# file and git add it.
+# Every .nix file under ./features (except lib.nix) is auto-discovered by
+# default and returned as a list of module paths. Callers may provide an
+# explicit include list for profiles. Each path contributes to config.vim.*.
 #
 # Usage in flake.nix:
 #   featureLib = import ./features/lib.nix { inherit lib; };
 #   featureModules = featureLib.mkModules { };
 #   nvf.lib.neovimConfiguration { modules = featureModules; ... };
-{ lib }: let
+{lib}: let
   inherit (lib) filterAttrs hasSuffix;
 in {
-  mkModules = { }: let
+  mkModules = {include ? null}: let
     entries = builtins.readDir ./.;
-    files = filterAttrs (name: type:
-      type == "regular" && hasSuffix ".nix" name && name != "lib.nix"
-    ) entries;
+    files =
+      filterAttrs (
+        name: type:
+          type
+          == "regular"
+          && hasSuffix ".nix" name
+          && name != "lib.nix"
+          && (include == null || builtins.elem name include)
+      )
+      entries;
     sortedNames = builtins.sort builtins.lessThan (builtins.attrNames files);
-  in map
+  in
+    map
     (name: ./. + "/${name}")
     sortedNames;
 }

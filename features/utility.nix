@@ -1,10 +1,14 @@
 # Feature: utility
-# Editor quality-of-life utilities: surround, multicursors, flash, sleuth,
-# diffview, motion, images, and disabled alternatives.
-{ config, pkgs, lib, ... }: {
+# Editor quality-of-life utilities: multicursors, flash, sleuth, diffview,
+# motion, images, and disabled alternatives.
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
   config.vim.utility = {
     diffview-nvim.enable = true;
-    surround.enable = true;
     multicursors.enable = true;
     sleuth.enable = true;
 
