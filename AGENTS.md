@@ -6,6 +6,12 @@
 # Build the Neovim configuration (no install)
 nix build .#default
 
+# Build the slim profile for vscode-neovim
+nix build .#vscode
+
+# Exercise the slim profile's generated-init startup contract
+nix build .#checks.x86_64-linux.vscode
+
 # Run the configured Neovim (build + execute)
 nix run .
 
@@ -16,7 +22,7 @@ nix flake update
 nix flake check
 ```
 
-This repo has **no test framework, no linter, no typechecker**. The only validation is `nix flake check` and a successful `nix build .#default`.
+This repo has **no test framework, no linter, no typechecker**. Validation uses `nix flake check`, package builds, and the focused VS Code profile check.
 
 ## Repository Structure
 
@@ -46,6 +52,8 @@ This repo has **no test framework, no linter, no typechecker**. The only validat
 │   ├── minimap.nix        # codewindow (disabled)
 │   ├── gestures.nix       # gesture-nvim (disabled)
 │   └── session.nix        # nvim-session-manager (disabled)
+├── profiles/
+│   └── vscode/             # explicit slim-profile modules, not auto-discovered
 ├── docs/
 │   └── adding-a-feature.md
 ├── AGENTS.md
