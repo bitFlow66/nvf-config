@@ -49,7 +49,6 @@ This repo has **no test framework, no linter, no typechecker**. Validation uses 
 │   ├── projects.nix       # project-nvim
 │   ├── autopairs.nix
 │   ├── comments.nix
-│   ├── minimap.nix        # codewindow (disabled)
 │   ├── gestures.nix       # gesture-nvim (disabled)
 │   └── session.nix        # nvim-session-manager (disabled)
 ├── profiles/
@@ -161,7 +160,6 @@ nvf-config = {
 Annotate every `enable = false;` with a short reason comment:
 ```nix
 session.nvim-session-manager.enable = false; # autoload is intrusive
-minimap.codewindow.enable = false;            # waiting for upstream PR #86
 ```
 
 ### Deleting a Feature

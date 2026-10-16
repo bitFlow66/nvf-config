@@ -102,7 +102,7 @@ Set `enable = false;` with a comment explaining why:
 
 ```nix
 { config, pkgs, lib, ... }: {
-  config.vim.minimap.codewindow.enable = false; # waiting for upstream PR #86
+  config.vim.session.nvim-session-manager.enable = false; # autoload is intrusive
 }
 ```
 
