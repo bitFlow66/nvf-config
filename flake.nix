@@ -141,7 +141,8 @@
       assert vsCodeSlimEval.config.vim.binds.whichKey.enable;
       assert !vsCodeSlimEval.config.vim.binds.cheatsheet.enable;
       assert !vsCodeSlimEval.config.vim.clipboard.providers.wl-copy.enable;
-      assert vsCodeSlimEval.config.vim.clipboard.registers == "";
+      assert vsCodeSlimEval.config.vim.clipboard.enable;
+      assert vsCodeSlimEval.config.vim.clipboard.registers == "unnamedplus";
       assert !vsCodeSlimEval.config.vim.treesitter.highlight.enable;
       assert !vsCodeSlimEval.config.vim.treesitter.context.enable;
       assert vsCodeSlimEval.config.vim.utility.surround.enable;
@@ -159,7 +160,7 @@
             -u ${vsCodeSlimEval.neovim.passthru.initLua} \
             -c "lua if vim.g.vscode ~= 1 then vim.cmd('cquit 1') end" \
             -c "lua if vim.g.mapleader ~= ' ' then vim.cmd('cquit 1') end" \
-            -c "lua if vim.o.shiftwidth ~= 2 then vim.cmd('cquit 1') end" \
+            -c "lua if vim.o.shiftwidth ~= 2 or not vim.o.clipboard:find('unnamedplus', 1, true) then vim.cmd('cquit 1') end" \
             -c "lua if #vim.fn.maparg('<C-n>', 'n') ~= 0 then vim.cmd('cquit 1') end" \
             -c "lua if #vim.fn.maparg(' e', 'n') == 0 then vim.cmd('cquit 1') end" \
             -c "lua if #vim.fn.maparg('af', 'x') == 0 or #vim.fn.maparg('af', 'o') == 0 then vim.cmd('cquit 1') end" \

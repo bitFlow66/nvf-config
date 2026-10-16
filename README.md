@@ -13,7 +13,8 @@
 - `packages.x86_64-linux.vsCodeSlim` is the VS Code profile for the
   VSCode Neovim extension. It provides shared editing defaults, comments,
   surround, and Treesitter text objects while leaving language services,
-  completion, debugging, clipboard integration, and editor UI to VS Code.
+  completion, and debugging to VS Code. Clipboard yanks use VSCode Neovim's
+  bridge to the VS Code clipboard; the standalone Wayland provider is disabled.
 - The `vsCodeSlim` package exposes its generated init file as
   `passthru.initLua`. Configure the extension's Linux executable path to
   `${package}/bin/nvim` and its `neovimInitVimPaths.linux` setting to that file.
@@ -25,10 +26,10 @@ Both profiles explicitly select reusable modules from `features/` in `flake.nix`
 Core defaults, visual indentation mappings, comments, surround, parsers,
 textobjects, and binding helpers have one shared implementation. Only
 `profiles/vsCodeSlim.nix` owns VS Code-specific overrides and integration mappings.
-It disables standalone aliases, the Wayland clipboard provider, Treesitter
-highlighting/indentation, and cheatsheet UI. Standalone window navigation,
-Treesitter context, and language tooling are separate features selected only by
-`full`.
+It disables standalone aliases and the Wayland clipboard provider, enables the
+VS Code clipboard register bridge, and disables Treesitter highlighting/indentation
+and cheatsheet UI. Standalone window navigation, Treesitter context, and language
+tooling are separate features selected only by `full`.
 
 Which-key is included in both profiles; its popup usability in VSCode Neovim
 requires interactive verification and is not established by headless loading.

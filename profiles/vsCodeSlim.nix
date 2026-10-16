@@ -5,7 +5,9 @@
     viAlias = lib.mkForce false;
     vimAlias = lib.mkForce false;
     clipboard = {
-      registers = lib.mkForce "";
+      # vscode-neovim supplies the +/* bridge to VS Code's clipboard.
+      enable = lib.mkForce true;
+      registers = lib.mkForce "unnamedplus";
       providers.wl-copy.enable = lib.mkForce false;
     };
     treesitter = {
