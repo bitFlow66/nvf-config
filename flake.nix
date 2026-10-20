@@ -189,11 +189,33 @@
           assert(calls[#calls][2].args.query == "needle", "word search missing query")
           vim.cmd.normal(" st")
           assert(calls[#calls][2].args.isRegex, "TODO search missing regex")
+          assert(calls[#calls][2].args.query == "TODO|FIXME|HACK|WARN|PERF|NOTE", "unexpected TODO search markers")
           vim.cmd.normal("viw cf")
           assert(calls[#calls][1] == "editor.action.formatSelection", "visual format dispatched document action")
           vim.cmd.normal({vim.api.nvim_replace_termcodes("<Esc>", true, false, true), bang = true})
           vim.cmd.normal(" tf")
           assert(calls[#calls][1] == "eval" and calls[#calls][2]:find("formatOnSave", 1, true))
+          vim.cmd.normal(" k")
+          local popup = calls[#calls]
+          assert(popup[1] == "whichkey.show", "shortcut help did not open native Which Key")
+          local found = {}
+          local function inspect_menu(items, prefix)
+            for _, item in ipairs(items) do
+              local sequence = prefix .. item.key
+              if item.bindings then
+                inspect_menu(item.bindings, sequence)
+              else
+                found[sequence] = item
+                if sequence ~= "k" then
+                  assert(item.command == "vscode-neovim.send" and item.args == " " .. sequence, "menu dispatch drift: " .. sequence)
+                end
+              end
+            end
+          end
+          inspect_menu(popup[2].args[1], "")
+          assert(found.sw and found.st and found[" "] and found.e and found.tf and found.gs)
+          assert(not found.ts and not found.gl and not found.as, "standalone actions leaked into menu")
+          assert(found.k.command == "workbench.action.showCommands", "recursive menu help action")
         else
           for _, key in ipairs({"h", "j", "k", "l", "H", "M", "L", "s", "S"}) do
             assert(vim.fn.maparg(key, "n") == "", "native normal-mode key overwritten: " .. key)

@@ -30,7 +30,7 @@ the host offers identical functionality; see the profile notes below.
 
 `Space e` opens Neo-tree in `full` and the VS Code Explorer in `vsCodeSlim`.
 `Space Space` finds files in both. `Space k` opens the cheatsheet in `full` and
-the VS Code command palette in `vsCodeSlim`.
+the native Which Key menu in `vsCodeSlim` (requires `VSpaceCode.whichkey`).
 
 ## Code Navigation
 
@@ -67,6 +67,13 @@ The former `gz` surround family is removed. Insert-mode surround uses upstream
 VS Code does not forward `Ctrl+g` to Neovim by default.
 Visual `S` belongs to surround; Flash's previous `s/S` mappings are not kept.
 
+For example, `ysiw"` reads as `ys` (add surrounding delimiters), `iw` (the inner
+word text object, excluding surrounding whitespace), and `"` (the delimiter to
+add). On `hello world`, with the cursor anywhere in `hello`, it produces
+`"hello" world`. This is the surround plugin's `ys` operator, not a normal yank.
+Substitute another text object or motion, such as `ysaw"` to include the word's
+adjacent whitespace, or `yss"` to surround the current line.
+
 ## Profile Differences And Limitations
 
 | Area | `full` | `vsCodeSlim` |
@@ -79,7 +86,7 @@ Visual `S` belongs to surround; Flash's previous `s/S` mappings are not kept.
 | Terminal | ToggleTerm | VS Code integrated terminal |
 
 `Space sw` seeds search with the word under the cursor. VS Code `Space st` seeds
-a regex search for TODO/FIXME/HACK/WARN/PERF/NOTE/TEST. `Space cf` formats the
+a regex search for TODO/FIXME/HACK/WARN/PERF/NOTE. `Space cf` formats the
 document in normal mode and the selection in visual mode, subject to formatter
 range support.
 
@@ -155,6 +162,52 @@ After Explorer, SCM, a search box, or the terminal receives focus, these Neovim
 leader sequences no longer apply. Use native shortcuts/list navigation and return
 focus to a text editor before using them. In particular, `Space tt` opens the
 integrated terminal from the editor; it is not a terminal-side escape shortcut.
+
+To return to editing with VS Code's default Linux/Windows shortcuts:
+
+| Current focus | Return to editor |
+|---|---|
+| Quick Open / command palette | `Esc` cancels; `Enter` accepts a selection |
+| Explorer / Search sidebar | `Ctrl+1` focuses the first editor group |
+| Any view, preserving the active editor group | Run `View: Focus Active Editor Group` from the command palette |
+
+`Ctrl+1` selects group 1, so with multiple editor groups use the active-group
+command to return without choosing a particular group. `Esc` alone does not
+reliably leave a sidebar search field without a client shortcut. The NixOS
+configuration's `docs/vscode-neovim.md` documents the scoped Explorer/Search
+Escape shortcut artifact and its client installation. These are native VS Code
+shortcuts, not Neovim mappings, and custom user bindings can override them.
+
+## Shortcut Help In VS Code
+
+Neovim's which-key popup uses a floating Neovim window and is not the supported
+VS Code help UI. Install **Which Key**, extension ID `VSpaceCode.whichkey`, on the
+VS Code client (Local in Remote WSL), deploy this profile, and restart the Neovim
+extension. In normal mode, `Space k` opens a native Quick Pick menu generated
+from the loaded normal-mode leader mappings. Choose a category and action, or
+press Escape to cancel. No `whichkey.bindings` settings are needed. The menu's
+`k` action opens the command palette rather than recursively reopening the menu.
+
+The menu invokes the existing Neovim mappings; command implementations are not
+duplicated. Visual-only actions, native motions, and plugin-local mappings are
+not listed. An uninstalled extension produces a missing `whichkey.show` command
+error; ordinary leader bindings still work without the menu extension.
+
+Optionally add the following entry through
+`Preferences: Open Keyboard Shortcuts (JSON)` on the client for a popup on the
+first Space in normal mode:
+
+```json
+{
+  "key": "space",
+  "command": "vscode-neovim.send",
+  "args": " k",
+  "when": "editorTextFocus && neovim.init && neovim.mode == normal && !inQuickOpen && !suggestWidgetVisible"
+}
+```
+
+The following keys then select menu actions. Insert and visual modes remain
+unchanged. Installing the full VSpaceCode or VSCodeVim stack is not required.
 
 For Dvorak, these mappings follow characters, not physical QWERTY key positions.
 Keep the active OS layout correct. If a key is intercepted or misidentified, use

@@ -73,7 +73,7 @@
         desc = "Search TODOs";
         action =
           if vscode
-          then "<cmd>lua require('vscode').action('workbench.action.findInFiles', {args = {query = 'TODO|FIXME|HACK|WARN|PERF|NOTE|TEST', isRegex = true}})<CR>"
+          then "<cmd>lua require('vscode').action('workbench.action.findInFiles', {args = {query = 'TODO|FIXME|HACK|WARN|PERF|NOTE', isRegex = true}})<CR>"
           else "<cmd>TodoTelescope<CR>";
       }
       {
@@ -109,7 +109,7 @@
         desc = "Shortcut help";
         action =
           if vscode
-          then vscodeAction "workbench.action.showCommands"
+          then "<cmd>lua NvfWhichKey()<CR>"
           else "<cmd>Cheatsheet<CR>";
       }
 
@@ -651,6 +651,50 @@ in {
     lspMappings
     toggletermMappings
     {
+      vim.luaConfigRC.vscode-which-key = lib.mkIf vscode (lib.nvim.dag.entryAnywhere ''
+        function NvfWhichKey()
+          local menu = {}
+          local categories = {
+            b = "Buffers/editors", c = "Code", d = "Debug", f = "Files",
+            g = "Git", s = "Search", t = "Toggles", x = "Diagnostics",
+          }
+          local function insert(items, keys, name, sequence)
+            local key = keys:sub(1, 1)
+            if #keys == 1 then
+              items[#items + 1] = {
+                key = key, name = name, type = "command",
+                command = "vscode-neovim.send", args = sequence,
+              }
+              return
+            end
+            local group
+            for _, item in ipairs(items) do
+              if item.key == key then group = item; break end
+            end
+            if not group then
+              group = {key = key, name = categories[key] or key, type = "bindings", bindings = {}}
+              items[#items + 1] = group
+            end
+            insert(group.bindings, keys:sub(2), name, sequence)
+          end
+          local maps = vim.api.nvim_get_keymap("n")
+          table.sort(maps, function(a, b) return a.lhs < b.lhs end)
+          for _, map in ipairs(maps) do
+            local lhs = map.lhs:gsub("<Space>", " ")
+            if lhs:sub(1, 1) == " " and #lhs > 1 and map.desc then
+              insert(menu, lhs:sub(2), map.desc, lhs)
+            end
+          end
+          for _, item in ipairs(menu) do
+            if item.key == "k" then
+              item.command = "workbench.action.showCommands"
+              item.args = nil
+              item.name = "Command palette"
+            end
+          end
+          require("vscode").action("whichkey.show", {args = {menu}})
+        end
+      '');
       vim.keymaps =
         mappings
         ++ vscodeBufferMappings
