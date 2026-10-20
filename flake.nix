@@ -48,7 +48,6 @@
           "treesitter-context.nix"
           "ui.nix"
           "utility.nix"
-          "window-keymaps.nix"
         ];
       };
       vsCodeSlim =
@@ -70,12 +69,14 @@
     fullEval = nvf.lib.neovimConfiguration {
       inherit pkgs;
       modules = profileModules.full;
+      extraSpecialArgs.vscode = false;
     };
 
     # Explicit allowlist keeps standalone UI and language tooling out of VS Code.
     vsCodeSlimEval = nvf.lib.neovimConfiguration {
       inherit pkgs;
       modules = profileModules.vsCodeSlim;
+      extraSpecialArgs.vscode = true;
     };
     editingTest = pkgs.writeText "nvf-editing-test.lua" ''
       local ok, err = pcall(function()
@@ -117,8 +118,103 @@
         assert(vim.api.nvim_get_current_line() == "value = 1")
         vim.api.nvim_buf_set_lines(0, 0, -1, false, {"hello"})
         vim.api.nvim_win_set_cursor(0, {1, 0})
-        vim.cmd.normal('gziw"')
+        vim.cmd.normal('ysiw"')
         assert(vim.api.nvim_get_current_line() == '"hello"')
+        vim.cmd.normal([[cs"']])
+        assert(vim.api.nvim_get_current_line() == "'hello'")
+        vim.cmd.normal("ds'")
+        assert(vim.api.nvim_get_current_line() == "hello")
+        vim.cmd.normal('viwS"')
+        assert(vim.api.nvim_get_current_line() == '"hello"')
+        vim.api.nvim_buf_set_lines(0, 0, -1, false, {"first", "second", "third"})
+        vim.bo.expandtab = true
+        vim.bo.shiftwidth = 2
+        vim.api.nvim_win_set_cursor(0, {1, 0})
+        vim.cmd.normal("Vj>")
+        assert(vim.deep_equal(vim.api.nvim_buf_get_lines(0, 0, -1, false), {"  first", "  second", "third"}), "indent mapping moved or split text: " .. vim.inspect(vim.api.nvim_buf_get_lines(0, 0, -1, false)))
+        assert(vim.fn.mode() == "V", "indent mapping lost selection")
+        vim.cmd.normal("<")
+        assert(vim.api.nvim_buf_get_lines(0, 0, -1, false)[1] == "first")
+        vim.cmd.normal({vim.api.nvim_replace_termcodes("<Esc>", true, false, true), bang = true})
+        local shared_maps = {
+          "<leader><leader>", "<leader>e", "<leader>sg", "<leader>ss",
+          "<leader>bb", "<leader>bd", "<leader>bn", "<leader>bp",
+          "gd", "gD", "gy", "grr", "gri", "K", "<leader>ca",
+          "<leader>cr", "<leader>cf", "<leader>xn", "<leader>xp",
+          "<leader>xx", "<leader>gd", "<leader>gn", "<leader>gp",
+          "<leader>gv", "<leader>dc", "<leader>di", "<leader>do",
+          "<leader>dO", "<leader>tt", "<leader>tw", "<leader>tf",
+        }
+        for _, key in ipairs(shared_maps) do
+          local lhs = key:gsub("<leader>", " ")
+          assert(vim.fn.maparg(lhs, "n") ~= "", "missing shared mapping: " .. key)
+        end
+        for _, key in ipairs({"ys", "yss", "ds", "cs"}) do
+          assert(vim.fn.maparg(key, "n") ~= "", "missing surround mapping: " .. key)
+        end
+        if vim.g.vscode then
+          assert(vim.fn.maparg(" e", "n") ~= "", "missing VS Code Explorer mapping")
+          assert(vim.fn.maparg("  ", "n") ~= "", "missing VS Code file search mapping")
+          assert(vim.fn.maparg("gd", "n") ~= "", "missing VS Code definition mapping")
+          assert(vim.fn.maparg("grr", "n") ~= "", "missing VS Code references mapping")
+          assert(vim.fn.maparg(" aa", "n") == "", "standalone assistant leaked into VS Code profile")
+          assert(vim.fn.maparg(" sj", "n") == "", "standalone Flash leaked into VS Code profile")
+          assert(vim.fn.maparg(" ts", "n") == "", "Neovim spell toggle leaked into VS Code")
+          assert(vim.fn.maparg(" gl", "n") == "", "unsupported line blame shortcut in VS Code")
+          local calls = {}
+          package.loaded.vscode = {
+            action = function(name, opts) calls[#calls + 1] = {name, opts} end,
+            eval_async = function(code) calls[#calls + 1] = {"eval", code} end,
+          }
+          for key, command in pairs({
+            ["gd"] = "editor.action.revealDefinition",
+            ["gD"] = "editor.action.revealDeclaration",
+            [" gd"] = "git.openChange",
+            [" gh"] = "timeline.focus",
+            [" gH"] = "workbench.scm.history.focus",
+            [" gs"] = "git.stageSelectedRanges",
+            [" gu"] = "git.unstageSelectedRanges",
+            [" gr"] = "git.revertSelectedRanges",
+            [" tb"] = "git.blame.toggleEditorDecoration",
+            [" tw"] = "editor.action.toggleWordWrap",
+            [" cf"] = "editor.action.formatDocument",
+            [" de"] = "editor.debug.action.showDebugHover",
+          }) do
+            vim.cmd.normal(key)
+            assert(calls[#calls][1] == command, "wrong dispatch for " .. key)
+          end
+          vim.api.nvim_buf_set_lines(0, 0, -1, false, {"needle"})
+          vim.api.nvim_win_set_cursor(0, {1, 0})
+          vim.cmd.normal(" sw")
+          assert(calls[#calls][2].args.query == "needle", "word search missing query")
+          vim.cmd.normal(" st")
+          assert(calls[#calls][2].args.isRegex, "TODO search missing regex")
+          vim.cmd.normal("viw cf")
+          assert(calls[#calls][1] == "editor.action.formatSelection", "visual format dispatched document action")
+          vim.cmd.normal({vim.api.nvim_replace_termcodes("<Esc>", true, false, true), bang = true})
+          vim.cmd.normal(" tf")
+          assert(calls[#calls][1] == "eval" and calls[#calls][2]:find("formatOnSave", 1, true))
+        else
+          for _, key in ipairs({"h", "j", "k", "l", "H", "M", "L", "s", "S"}) do
+            assert(vim.fn.maparg(key, "n") == "", "native normal-mode key overwritten: " .. key)
+          end
+          assert(vim.fn.maparg(" sj", "n") ~= "", "missing lazy Flash shortcut")
+          local formatsave = vim.g.formatsave
+          vim.cmd.normal(" tf")
+          assert(vim.g.formatsave == not formatsave, "format-on-save toggle failed")
+          vim.cmd.normal(" tf")
+          vim.cmd("enew!")
+          local closing = vim.api.nvim_get_current_buf()
+          vim.cmd.normal(" bd")
+          assert(not vim.bo[closing].buflisted, "close-buffer mapping failed")
+          require("codecompanion")
+          local range
+          vim.api.nvim_create_user_command("CodeCompanionChat", function(opts) range = opts end, {range = true, nargs = "*", force = true})
+          vim.api.nvim_buf_set_lines(0, 0, -1, false, {"first", "second", "third"})
+          vim.api.nvim_win_set_cursor(0, {1, 0})
+          vim.cmd.normal("Vj as")
+          assert(range.args == "Add" and range.line1 == 1 and range.line2 == 2, "assistant lost selected lines")
+        end
       end)
       if not ok then
         vim.api.nvim_err_writeln(tostring(err))
@@ -158,14 +254,8 @@
           nvim --headless \
             --cmd 'let g:vscode = 1' \
             -u ${vsCodeSlimEval.neovim.passthru.initLua} \
-            -c "lua if vim.g.vscode ~= 1 then vim.cmd('cquit 1') end" \
-            -c "lua if vim.g.mapleader ~= ' ' then vim.cmd('cquit 1') end" \
-            -c "lua if vim.o.shiftwidth ~= 2 or not vim.o.clipboard:find('unnamedplus', 1, true) then vim.cmd('cquit 1') end" \
-            -c "lua if #vim.fn.maparg('<C-n>', 'n') ~= 0 then vim.cmd('cquit 1') end" \
-            -c "lua if #vim.fn.maparg(' e', 'n') == 0 then vim.cmd('cquit 1') end" \
+            -c "lua if not vim.g.vscode or vim.g.mapleader ~= ' ' or vim.o.shiftwidth ~= 2 or not vim.o.clipboard:find('unnamedplus', 1, true) or #vim.fn.maparg('<C-n>', 'n') ~= 0 or vim.fn.exists(':Neotree') ~= 0 or not pcall(require, 'which-key') then vim.cmd('cquit 1') end" \
             -c "lua if #vim.fn.maparg('af', 'x') == 0 or #vim.fn.maparg('af', 'o') == 0 then vim.cmd('cquit 1') end" \
-            -c "lua if vim.fn.exists(':Neotree') ~= 0 then vim.cmd('cquit 1') end" \
-            -c "lua if not pcall(require, 'which-key') then vim.cmd('cquit 1') end" \
             -c "luafile ${editingTest}" \
             -c 'qa!'
           touch "$out"
@@ -202,6 +292,7 @@
           (nvf.lib.neovimConfiguration {
             inherit pkgs;
             modules = profileModules.full;
+            extraSpecialArgs.vscode = false;
           }).config.vim;
       };
     };
@@ -219,6 +310,7 @@
           (nvf.lib.neovimConfiguration {
             inherit pkgs;
             modules = profileModules.full;
+            extraSpecialArgs.vscode = false;
           }).config.vim;
       };
     };

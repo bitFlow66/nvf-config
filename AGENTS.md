@@ -40,7 +40,6 @@ both profiles. There is no separate test framework, linter, or typechecker.
 │   ├── completion.nix     # autocomplete, snippets
 │   ├── treesitter.nix     # shared parsers, textobjects
 │   ├── treesitter-context.nix # standalone context UI
-│   ├── window-keymaps.nix # standalone filetree/window bindings
 │   ├── telescope.nix
 │   ├── git.nix            # gitsigns
 │   ├── filetree.nix       # neo-tree
@@ -72,9 +71,10 @@ explicitly select features. Add a new feature to the intended selections; unknow
 names fail evaluation. New files must be staged for Git-backed flake evaluation,
 or tested with `path:.` without staging.
 
-Keep reusable behavior in `features/`, not profile modules. All VS Code-specific
-overrides belong in `profiles/vsCodeSlim.nix`. Both profiles run the same editing
-regression script. NVF's pinned textobjects module emits an obsolete setup API;
+Keep reusable behavior in `features/`, not profile modules. VS Code-specific option
+overrides belong in `profiles/vsCodeSlim.nix`; shared task mappings dispatch in
+`features/keymaps.nix` using the explicit `vscode` special argument. Both profiles
+run the same editing regression script. NVF's pinned textobjects module emits an obsolete setup API;
 the shared Treesitter feature replaces that setup with the current plugin API.
 
 - **`features/lib.nix`** — Auto-discovery engine. `builtins.readDir` finds all

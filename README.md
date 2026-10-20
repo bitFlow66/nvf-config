@@ -23,16 +23,19 @@
   `useWSL` option when Neovim itself runs in the NixOS workspace host.
 
 Both profiles explicitly select reusable modules from `features/` in `flake.nix`.
-Core defaults, visual indentation mappings, comments, surround, parsers,
-textobjects, and binding helpers have one shared implementation. Only
-`profiles/vsCodeSlim.nix` owns VS Code-specific overrides and integration mappings.
+Core defaults, task-oriented Dvorak-friendly mappings, comments, surround, parsers,
+textobjects, and binding helpers have one shared implementation.
+`features/keymaps.nix` dispatches task actions using the explicit `vscode` module
+argument; `profiles/vsCodeSlim.nix` owns VS Code-specific option overrides.
 It disables standalone aliases and the Wayland clipboard provider, enables the
 VS Code clipboard register bridge, and disables Treesitter highlighting/indentation
-and cheatsheet UI. Standalone window navigation, Treesitter context, and language
-tooling are separate features selected only by `full`.
+and cheatsheet UI. Treesitter context and language tooling are separate features
+selected only by `full`; window navigation uses native Vim/VSCode Neovim controls.
 
-Which-key is included in both profiles; its popup usability in VSCode Neovim
-requires interactive verification and is not established by headless loading.
+The shared task bindings and profile differences are documented in
+[`docs/keybindings.md`](docs/keybindings.md). Which-key is included in both
+profiles; its popup usability in VSCode Neovim requires interactive verification
+and is not established by headless loading.
 
 Validate both compositions and their generated-init startup paths with:
 
@@ -66,8 +69,7 @@ nix build .#checks.x86_64-linux.vsCodeSlim .#checks.x86_64-linux.full
 | **core** | vi/vim alias, wl-clipboard, spellcheck |
 | **filetree** | neo-tree |
 | **git** | gitsigns |
-| **keymaps** | shared visual indentation bindings |
-| **window-keymaps** | standalone filetree and window navigation bindings |
+| **keymaps** | shared Dvorak-friendly task and editing bindings |
 | **lsp** | format-on-save, lspkind, trouble, signature, docs-view, DAP debugger |
 | **notes** | todo-comments |
 | **projects** | project-nvim |

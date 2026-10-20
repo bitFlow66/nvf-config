@@ -41,12 +41,8 @@
 
     tabline.nvimBufferline = {
       enable = true;
+      mappings.closeCurrent = null;
       setupOpts.options.numbers = "none";
-      mappings = {
-        cycleNext = "<S-l>";
-        cyclePrevious = "<S-h>";
-        closeCurrent = "<leader>bx";
-      };
     };
 
     notify.nvim-notify.enable = true;
