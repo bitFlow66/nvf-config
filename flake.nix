@@ -139,6 +139,7 @@
         local shared_maps = {
           "<leader><leader>", "<leader>e", "<leader>sg", "<leader>ss",
           "<leader>bb", "<leader>bd", "<leader>bn", "<leader>bp",
+          "H", "L",
           "gd", "gD", "gy", "grr", "gri", "K", "<leader>ca",
           "<leader>cr", "<leader>cf", "<leader>xn", "<leader>xp",
           "<leader>xx", "<leader>gd", "<leader>gn", "<leader>gp",
@@ -167,6 +168,8 @@
             eval_async = function(code) calls[#calls + 1] = {"eval", code} end,
           }
           for key, command in pairs({
+            ["H"] = "workbench.action.previousEditor",
+            ["L"] = "workbench.action.nextEditor",
             ["gd"] = "editor.action.revealDefinition",
             ["gD"] = "editor.action.revealDeclaration",
             [" gd"] = "git.openChange",
@@ -199,27 +202,33 @@
           local popup = calls[#calls]
           assert(popup[1] == "whichkey.show", "shortcut help did not open native Which Key")
           local found = {}
-          local function inspect_menu(items, prefix)
+          local function inspect_menu(items, prefix, direct)
             for _, item in ipairs(items) do
-              local sequence = prefix .. item.key
+              local isDirect = direct or item.name == "Direct keys"
+              local sequence = isDirect and item.name == "Direct keys" and "" or prefix .. item.key
               if item.bindings then
-                inspect_menu(item.bindings, sequence)
+                inspect_menu(item.bindings, sequence, isDirect)
               else
                 found[sequence] = item
                 if sequence ~= "k" then
-                  assert(item.command == "vscode-neovim.send" and item.args == " " .. sequence, "menu dispatch drift: " .. sequence)
+                  local expected = isDirect and sequence or " " .. sequence
+                  assert(item.command == "vscode-neovim.send" and item.args == expected, "menu dispatch drift: " .. sequence)
                 end
               end
             end
           end
-          inspect_menu(popup[2].args[1], "")
+          inspect_menu(popup[2].args[1], "", false)
           assert(found.sw and found.st and found[" "] and found.e and found.tf and found.gs)
+          assert(found.gd and found.H and found.L, "direct mappings missing from shortcut menu")
+          assert(found.gd.args == "gd" and found.H.args == "H" and found.L.args == "L", "direct mapping sends incorrect sequence")
           assert(not found.ts and not found.gl and not found.as, "standalone actions leaked into menu")
           assert(found.k.command == "workbench.action.showCommands", "recursive menu help action")
         else
-          for _, key in ipairs({"h", "j", "k", "l", "H", "M", "L", "s", "S"}) do
+          for _, key in ipairs({"h", "j", "k", "l", "M", "s", "S"}) do
             assert(vim.fn.maparg(key, "n") == "", "native normal-mode key overwritten: " .. key)
           end
+          assert(vim.fn.maparg("H", "n") ~= "", "missing previous-editor mapping")
+          assert(vim.fn.maparg("L", "n") ~= "", "missing next-editor mapping")
           assert(vim.fn.maparg(" sj", "n") ~= "", "missing lazy Flash shortcut")
           local formatsave = vim.g.formatsave
           vim.cmd.normal(" tf")

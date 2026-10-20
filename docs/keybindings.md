@@ -4,7 +4,9 @@ The `full` and `vsCodeSlim` profiles share a task-oriented, Dvorak-friendly
 binding layer. Mnemonic letters identify actions; navigation does not depend on
 QWERTY punctuation positions. The leader is `Space`. Most custom commands use
 `Space`, a category, and an action. Native Vim motions, operators, text objects,
-`h/j/k/l`, `H/M/L`, and `Ctrl+w` window commands retain their normal meanings.
+`h/j/k/l`, `M`, and `Ctrl+w` window commands retain their normal meanings.
+`H` and `L` switch to the previous and next editor; use `gg` and `G` for the
+top and bottom of the file.
 
 The shared map lives in `features/keymaps.nix`. Actions dispatch to native
 Neovim plugins/LSP in `full` and to VS Code commands through vscode-neovim in
@@ -19,7 +21,7 @@ the host offers identical functionality; see the profile notes below.
 | `Space e` | Files | Explorer |
 | `Space f` | Files | `fr` recent files, `fs` save |
 | `Space s` | Search | `sg` project text, `st` TODOs, `sw` word under cursor, `ss` document symbols, `sS` workspace symbols, `sj` Flash jump in `full` |
-| `Space b` | Buffers/editors | `bb` list, `bd` close, `bn` next, `bp` previous |
+| `Space b` | Buffers/editors | `bb` list, `bd` close, `bn` next, `bp` previous; `H/L` quick previous/next |
 | `Space c` | Code | `ca` action, `cr` rename, `cf` format, `cs` signature help |
 | `Space x` | Diagnostics | `xn/xp` next/previous, `xd` hover/details, `xx` workspace, `xb` buffer, `xq` quickfix; VS Code uses Problems for `xx/xb/xq` |
 | `Space g` | Git | `gg` overview, `gd` diff, `gn/gp` next/previous change, `gv` preview, `gh/gH` history, `gs/gu/gr` stage/unstage/revert (scope differs below), `gl` line blame in `full` only |
@@ -31,6 +33,10 @@ the host offers identical functionality; see the profile notes below.
 `Space e` opens Neo-tree in `full` and the VS Code Explorer in `vsCodeSlim`.
 `Space Space` finds files in both. `Space k` opens the cheatsheet in `full` and
 the native Which Key menu in `vsCodeSlim` (requires `VSpaceCode.whichkey`).
+For quick buffer switching, `H` selects the previous editor and `L` selects the
+next editor in both profiles. `gg` and `G` retain Vim's file-top and file-bottom
+motions. In `vsCodeSlim`, the `Space k` menu also has a `Direct keys` submenu
+for described non-leader mappings such as `gd`, `H`, and `L`.
 
 ## Code Navigation
 

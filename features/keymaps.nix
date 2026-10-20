@@ -132,6 +132,24 @@
           then vscodeAction "workbench.action.closeActiveEditor"
           else "<cmd>lua require('bufdelete').bufdelete(0, false)<CR>";
       }
+      {
+        key = "H";
+        mode = "n";
+        desc = "Previous editor";
+        action =
+          if vscode
+          then vscodeAction "workbench.action.previousEditor"
+          else "<cmd>BufferLineCyclePrev<CR>";
+      }
+      {
+        key = "L";
+        mode = "n";
+        desc = "Next editor";
+        action =
+          if vscode
+          then vscodeAction "workbench.action.nextEditor"
+          else "<cmd>BufferLineCycleNext<CR>";
+      }
       # Preserve Vim's g-prefixed navigation grammar across editors.
       {
         key = "gd";
@@ -679,12 +697,34 @@ in {
           end
           local maps = vim.api.nvim_get_keymap("n")
           table.sort(maps, function(a, b) return a.lhs < b.lhs end)
+          local describedDirect = {}
+          for _, map in ipairs(maps) do
+            local lhs = map.lhs:gsub("<Space>", " ")
+            if map.desc and lhs:match("^[%w%p]+$") and not lhs:find("<", 1, true) then
+              describedDirect[#describedDirect + 1] = lhs
+            end
+          end
+          local direct = {key = "?", name = "Direct keys", type = "bindings", bindings = {}}
+          local directCount = 0
           for _, map in ipairs(maps) do
             local lhs = map.lhs:gsub("<Space>", " ")
             if lhs:sub(1, 1) == " " and #lhs > 1 and map.desc then
               insert(menu, lhs:sub(2), map.desc, lhs)
+            elseif map.desc and lhs:match("^[%w%p]+$") and not lhs:find("<", 1, true) then
+              local hasLongerMapping = false
+              for _, candidate in ipairs(describedDirect) do
+                if #candidate > #lhs and candidate:sub(1, #lhs) == lhs then
+                  hasLongerMapping = true
+                  break
+                end
+              end
+              if not hasLongerMapping then
+                insert(direct.bindings, lhs, map.desc, lhs)
+                directCount = directCount + 1
+              end
             end
           end
+          if directCount > 0 then table.insert(menu, direct) end
           for _, item in ipairs(menu) do
             if item.key == "k" then
               item.command = "workbench.action.showCommands"
