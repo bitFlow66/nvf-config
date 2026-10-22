@@ -206,6 +206,9 @@
           for _, key in ipairs({"Space sw", "Space st", "Space e", "Space tf", "Space gs", "gd", "H", "L"}) do
             assert(shortcutSearch[2]:find('"label":"' .. key .. '"', 1, true), "shortcut missing from searchable help: " .. key)
           end
+          assert(shortcutSearch[2]:find('"label":"Visual if"', 1, true), "visual inside-function text object missing from searchable help")
+          assert(shortcutSearch[2]:find('"label":"Visual af"', 1, true), "visual function text object missing from searchable help")
+          assert(shortcutSearch[2]:find('"sequence":"vif"', 1, true), "visual text-object action does not enter visual mode")
           for _, key in ipairs({"Space ts", "Space gl", "Space as"}) do
             assert(not shortcutSearch[2]:find('"label":"' .. key .. '"', 1, true), "standalone shortcut leaked into VS Code help: " .. key)
           end

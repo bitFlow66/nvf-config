@@ -187,10 +187,12 @@ shortcuts, not Neovim mappings, and custom user bindings can override them.
 ## Shortcut Help In VS Code
 
 In normal mode, `Space k` opens a native VS Code Quick Pick generated from the
-loaded, described normal-mode mappings. Type to filter by key sequence or action
-description, then select a result to run that mapping. This includes direct keys
-such as `gd`, `H`, and `L`, as well as leader mappings. Visual-only actions,
-native motions, and plugin-local mappings without descriptions are not listed.
+loaded, described normal and visual mappings. Type to filter by key sequence or
+action description, then select a result to run that mapping. This includes direct
+keys such as `gd`, `H`, and `L`, leader mappings, and visual text objects such as
+`Visual if`. Selecting a visual mapping enters Visual mode before running it.
+Operator-pending mappings, native motions, and plugin-local mappings without
+descriptions are not listed.
 The picker uses the vscode-neovim extension API and does not require a separate
 Which Key extension.
 

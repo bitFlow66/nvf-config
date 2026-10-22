@@ -672,14 +672,17 @@ in {
       vim.luaConfigRC.vscode-shortcut-search = lib.mkIf vscode (lib.nvim.dag.entryAnywhere ''
         function NvfShortcutSearch()
           local items = {}
-          for _, map in ipairs(vim.api.nvim_get_keymap("n")) do
-            local lhs = map.lhs:gsub("<Space>", " ")
-            if map.desc and lhs ~= " k" and not lhs:find("<Plug>", 1, true) then
-              items[#items + 1] = {
-                label = lhs:gsub(" ", "Space "),
-                description = map.desc,
-                sequence = lhs,
-              }
+          for _, mode in ipairs({"n", "x"}) do
+            for _, map in ipairs(vim.api.nvim_get_keymap(mode)) do
+              local lhs = map.lhs:gsub("<Space>", " ")
+              if map.desc and not map.lhs:find("<Plug>", 1, true) and not (mode == "n" and lhs == " k") then
+                local sequence = mode == "x" and "v" .. lhs or lhs
+                items[#items + 1] = {
+                  label = (mode == "x" and "Visual " or "") .. lhs:gsub(" ", "Space "),
+                  description = map.desc,
+                  sequence = sequence,
+                }
+              end
             end
           end
           table.sort(items, function(a, b) return a.label < b.label end)
