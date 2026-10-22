@@ -193,8 +193,9 @@ keys such as `gd`, `H`, and `L`, leader mappings, and visual text objects such a
 `Visual if`. Selecting a visual mapping enters Visual mode before running it.
 Operator-pending mappings, native motions, and plugin-local mappings without
 descriptions are not listed.
+The `vsCodeSlim` profile disables the Neovim Which Key and cheatsheet plugins.
 The picker uses the vscode-neovim extension API and does not require a separate
-Which Key extension.
+Which Key VS Code extension.
 
 Optionally add the following entry through
 `Preferences: Open Keyboard Shortcuts (JSON)` on the client to open the search
@@ -209,8 +210,7 @@ picker on the first Space in normal mode:
 }
 ```
 
-The following keys then select menu actions. Insert and visual modes remain
-unchanged. Installing the full VSpaceCode or VSCodeVim stack is not required.
+Installing the full VSpaceCode or VSCodeVim stack is not required.
 
 For Dvorak, these mappings follow characters, not physical QWERTY key positions.
 Keep the active OS layout correct. If a key is intercepted or misidentified, use
@@ -232,6 +232,6 @@ nix build .#full .#vsCodeSlim
 Headless checks exercise surround edits, selection-preserving indentation,
 assistant command ranges, and VS Code action dispatch through a stubbed bridge.
 They do not execute VS Code commands. Interactive host behavior, Git operations,
-terminal keys, local shortcut conflicts, and which-key popup usability still
-require a VS Code session. Command IDs must also be supported by the installed
-VS Code version and its built-in Git extension.
+terminal keys, local shortcut conflicts, and Quick Pick usability still require a
+VS Code session. Command IDs must also be supported by the installed VS Code
+version and its built-in Git extension.

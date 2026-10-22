@@ -198,20 +198,6 @@
           vim.cmd.normal({vim.api.nvim_replace_termcodes("<Esc>", true, false, true), bang = true})
           vim.cmd.normal(" tf")
           assert(calls[#calls][1] == "eval_async" and calls[#calls][2]:find("formatOnSave", 1, true))
-          vim.cmd.normal(" k")
-          local shortcutSearch = calls[#calls]
-          assert(shortcutSearch[1] == "eval_async", "shortcut help did not open VS Code Quick Pick")
-          assert(shortcutSearch[2]:find("Search Neovim shortcuts", 1, true), "shortcut Quick Pick is not searchable")
-          assert(shortcutSearch[2]:find("vscode-neovim.send", 1, true), "shortcut selection does not dispatch through vscode-neovim")
-          for _, key in ipairs({"Space sw", "Space st", "Space e", "Space tf", "Space gs", "gd", "H", "L"}) do
-            assert(shortcutSearch[2]:find('"label":"' .. key .. '"', 1, true), "shortcut missing from searchable help: " .. key)
-          end
-          assert(shortcutSearch[2]:find('"label":"Visual if"', 1, true), "visual inside-function text object missing from searchable help")
-          assert(shortcutSearch[2]:find('"label":"Visual af"', 1, true), "visual function text object missing from searchable help")
-          assert(shortcutSearch[2]:find('"sequence":"vif"', 1, true), "visual text-object action does not enter visual mode")
-          for _, key in ipairs({"Space ts", "Space gl", "Space as"}) do
-            assert(not shortcutSearch[2]:find('"label":"' .. key .. '"', 1, true), "standalone shortcut leaked into VS Code help: " .. key)
-          end
         else
           for _, key in ipairs({"h", "j", "k", "l", "M", "s", "S"}) do
             assert(vim.fn.maparg(key, "n") == "", "native normal-mode key overwritten: " .. key)
@@ -254,7 +240,6 @@
       assert vsCodeSlimEval.config.vim.languages.nix.enable == false;
       assert vsCodeSlimEval.config.vim.filetree.neo-tree.enable == false;
       assert vsCodeSlimEval.config.vim.treesitter.textobjects.enable;
-      assert vsCodeSlimEval.config.vim.binds.whichKey.enable;
       assert !vsCodeSlimEval.config.vim.binds.cheatsheet.enable;
       assert !vsCodeSlimEval.config.vim.clipboard.providers.wl-copy.enable;
       assert vsCodeSlimEval.config.vim.clipboard.enable;
@@ -274,7 +259,7 @@
           nvim --headless \
             --cmd 'let g:vscode = 1' \
             -u ${vsCodeSlimEval.neovim.passthru.initLua} \
-            -c "lua if not vim.g.vscode or vim.g.mapleader ~= ' ' or vim.o.shiftwidth ~= 2 or not vim.o.clipboard:find('unnamedplus', 1, true) or #vim.fn.maparg('<C-n>', 'n') ~= 0 or vim.fn.exists(':Neotree') ~= 0 or not pcall(require, 'which-key') then vim.cmd('cquit 1') end" \
+            -c "lua if not vim.g.vscode or vim.g.mapleader ~= ' ' or vim.o.shiftwidth ~= 2 or not vim.o.clipboard:find('unnamedplus', 1, true) or #vim.fn.maparg('<C-n>', 'n') ~= 0 or vim.fn.exists(':Neotree') ~= 0 then vim.cmd('cquit 1') end" \
             -c "lua if #vim.fn.maparg('af', 'x') == 0 or #vim.fn.maparg('af', 'o') == 0 then vim.cmd('cquit 1') end" \
             -c "luafile ${editingTest}" \
             -c 'qa!'

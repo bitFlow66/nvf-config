@@ -15,7 +15,10 @@
         highlight.enable = lib.mkForce false;
         indent.enable = lib.mkForce false;
       };
-      binds.cheatsheet.enable = lib.mkForce false;
+      binds = {
+        whichKey.enable = lib.mkForce false;
+        cheatsheet.enable = lib.mkForce false;
+      };
     };
   };
 }

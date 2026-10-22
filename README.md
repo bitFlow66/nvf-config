@@ -33,11 +33,12 @@ and cheatsheet UI. Treesitter context and language tooling are separate features
 selected only by `full`; window navigation uses native Vim/VSCode Neovim controls.
 
 The shared task bindings and profile differences are documented in
-[`docs/keybindings.md`](docs/keybindings.md). Which-key is included in both
-profiles. In `vsCodeSlim`, `Space k` opens a searchable native VS Code Quick Pick
-generated from the active, described Neovim mappings; it includes direct keys as
-well as leader bindings and does not require a separate Which Key extension. The
-binding guide describes the available shortcuts and returning editor focus.
+[`docs/keybindings.md`](docs/keybindings.md). Standalone Neovim includes Which Key
+and the cheatsheet. `vsCodeSlim` disables both and uses `Space k` for a searchable
+native VS Code Quick Pick generated from the active, described Neovim mappings;
+it includes direct keys as well as leader bindings and does not require a separate
+Which Key extension. The binding guide describes the available shortcuts and
+returning editor focus.
 
 Validate both compositions and their generated-init startup paths with:
 
