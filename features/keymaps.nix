@@ -109,7 +109,7 @@
         desc = "Shortcut help";
         action =
           if vscode
-          then "<cmd>lua NvfWhichKey()<CR>"
+          then "<cmd>lua NvfShortcutSearch()<CR>"
           else "<cmd>Cheatsheet<CR>";
       }
 
@@ -669,70 +669,33 @@ in {
     lspMappings
     toggletermMappings
     {
-      vim.luaConfigRC.vscode-which-key = lib.mkIf vscode (lib.nvim.dag.entryAnywhere ''
-        function NvfWhichKey()
-          local menu = {}
-          local categories = {
-            b = "Buffers/editors", c = "Code", d = "Debug", f = "Files",
-            g = "Git", s = "Search", t = "Toggles", x = "Diagnostics",
-          }
-          local function insert(items, keys, name, sequence)
-            local key = keys:sub(1, 1)
-            if #keys == 1 then
+      vim.luaConfigRC.vscode-shortcut-search = lib.mkIf vscode (lib.nvim.dag.entryAnywhere ''
+        function NvfShortcutSearch()
+          local items = {}
+          for _, map in ipairs(vim.api.nvim_get_keymap("n")) do
+            local lhs = map.lhs:gsub("<Space>", " ")
+            if map.desc and lhs ~= " k" and not lhs:find("<Plug>", 1, true) then
               items[#items + 1] = {
-                key = key, name = name, type = "command",
-                command = "vscode-neovim.send", args = sequence,
+                label = lhs:gsub(" ", "Space "),
+                description = map.desc,
+                sequence = lhs,
               }
-              return
-            end
-            local group
-            for _, item in ipairs(items) do
-              if item.key == key then group = item; break end
-            end
-            if not group then
-              group = {key = key, name = categories[key] or key, type = "bindings", bindings = {}}
-              items[#items + 1] = group
-            end
-            insert(group.bindings, keys:sub(2), name, sequence)
-          end
-          local maps = vim.api.nvim_get_keymap("n")
-          table.sort(maps, function(a, b) return a.lhs < b.lhs end)
-          local describedDirect = {}
-          for _, map in ipairs(maps) do
-            local lhs = map.lhs:gsub("<Space>", " ")
-            if map.desc and lhs:match("^[%w%p]+$") and not lhs:find("<", 1, true) then
-              describedDirect[#describedDirect + 1] = lhs
             end
           end
-          local direct = {key = "?", name = "Direct keys", type = "bindings", bindings = {}}
-          local directCount = 0
-          for _, map in ipairs(maps) do
-            local lhs = map.lhs:gsub("<Space>", " ")
-            if lhs:sub(1, 1) == " " and #lhs > 1 and map.desc then
-              insert(menu, lhs:sub(2), map.desc, lhs)
-            elseif map.desc and lhs:match("^[%w%p]+$") and not lhs:find("<", 1, true) then
-              local hasLongerMapping = false
-              for _, candidate in ipairs(describedDirect) do
-                if #candidate > #lhs and candidate:sub(1, #lhs) == lhs then
-                  hasLongerMapping = true
-                  break
-                end
-              end
-              if not hasLongerMapping then
-                insert(direct.bindings, lhs, map.desc, lhs)
-                directCount = directCount + 1
-              end
-            end
-          end
-          if directCount > 0 then table.insert(menu, direct) end
-          for _, item in ipairs(menu) do
-            if item.key == "k" then
-              item.command = "workbench.action.showCommands"
-              item.args = nil
-              item.name = "Command palette"
-            end
-          end
-          require("vscode").action("whichkey.show", {args = {menu}})
+          table.sort(items, function(a, b) return a.label < b.label end)
+          local vscodeItems = vim.json.encode(items)
+          require("vscode").eval_async(([=[
+            (async () => {
+              const items = %s;
+              const selected = await vscode.window.showQuickPick(items, {
+                placeHolder: 'Search Neovim shortcuts',
+                matchOnDescription: true,
+              });
+              if (selected) {
+                await vscode.commands.executeCommand('vscode-neovim.send', selected.sequence);
+              }
+            })();
+          ]=]):format(vscodeItems))
         end
       '');
       vim.keymaps =

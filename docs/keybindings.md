@@ -32,11 +32,11 @@ the host offers identical functionality; see the profile notes below.
 
 `Space e` opens Neo-tree in `full` and the VS Code Explorer in `vsCodeSlim`.
 `Space Space` finds files in both. `Space k` opens the cheatsheet in `full` and
-the native Which Key menu in `vsCodeSlim` (requires `VSpaceCode.whichkey`).
+a searchable native VS Code Quick Pick in `vsCodeSlim`.
 For quick buffer switching, `H` selects the previous editor and `L` selects the
 next editor in both profiles. `gg` and `G` retain Vim's file-top and file-bottom
-motions. In `vsCodeSlim`, the `Space k` menu also has a `Direct keys` submenu
-for described non-leader mappings such as `gd`, `H`, and `L`.
+motions. In `vsCodeSlim`, the searchable `Space k` picker includes described
+direct mappings such as `gd`, `H`, and `L`.
 
 ## Code Navigation
 
@@ -186,22 +186,17 @@ shortcuts, not Neovim mappings, and custom user bindings can override them.
 
 ## Shortcut Help In VS Code
 
-Neovim's which-key popup uses a floating Neovim window and is not the supported
-VS Code help UI. Install **Which Key**, extension ID `VSpaceCode.whichkey`, on the
-VS Code client (Local in Remote WSL), deploy this profile, and restart the Neovim
-extension. In normal mode, `Space k` opens a native Quick Pick menu generated
-from the loaded normal-mode leader mappings. Choose a category and action, or
-press Escape to cancel. No `whichkey.bindings` settings are needed. The menu's
-`k` action opens the command palette rather than recursively reopening the menu.
-
-The menu invokes the existing Neovim mappings; command implementations are not
-duplicated. Visual-only actions, native motions, and plugin-local mappings are
-not listed. An uninstalled extension produces a missing `whichkey.show` command
-error; ordinary leader bindings still work without the menu extension.
+In normal mode, `Space k` opens a native VS Code Quick Pick generated from the
+loaded, described normal-mode mappings. Type to filter by key sequence or action
+description, then select a result to run that mapping. This includes direct keys
+such as `gd`, `H`, and `L`, as well as leader mappings. Visual-only actions,
+native motions, and plugin-local mappings without descriptions are not listed.
+The picker uses the vscode-neovim extension API and does not require a separate
+Which Key extension.
 
 Optionally add the following entry through
-`Preferences: Open Keyboard Shortcuts (JSON)` on the client for a popup on the
-first Space in normal mode:
+`Preferences: Open Keyboard Shortcuts (JSON)` on the client to open the search
+picker on the first Space in normal mode:
 
 ```json
 {

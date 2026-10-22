@@ -34,10 +34,10 @@ selected only by `full`; window navigation uses native Vim/VSCode Neovim control
 
 The shared task bindings and profile differences are documented in
 [`docs/keybindings.md`](docs/keybindings.md). Which-key is included in both
-profiles, but its Neovim floating popup is not a supported VS Code help UI.
-Install `VSpaceCode.whichkey` on the VS Code client for the native `Space k`
-menu, generated from the loaded leader bindings without a second binding list.
-The binding guide describes setup and returning editor focus.
+profiles. In `vsCodeSlim`, `Space k` opens a searchable native VS Code Quick Pick
+generated from the active, described Neovim mappings; it includes direct keys as
+well as leader bindings and does not require a separate Which Key extension. The
+binding guide describes the available shortcuts and returning editor focus.
 
 Validate both compositions and their generated-init startup paths with:
 

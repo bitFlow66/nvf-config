@@ -165,7 +165,7 @@
           local calls = {}
           package.loaded.vscode = {
             action = function(name, opts) calls[#calls + 1] = {name, opts} end,
-            eval_async = function(code) calls[#calls + 1] = {"eval", code} end,
+            eval_async = function(code) calls[#calls + 1] = {"eval_async", code} end,
           }
           for key, command in pairs({
             ["H"] = "workbench.action.previousEditor",
@@ -197,32 +197,18 @@
           assert(calls[#calls][1] == "editor.action.formatSelection", "visual format dispatched document action")
           vim.cmd.normal({vim.api.nvim_replace_termcodes("<Esc>", true, false, true), bang = true})
           vim.cmd.normal(" tf")
-          assert(calls[#calls][1] == "eval" and calls[#calls][2]:find("formatOnSave", 1, true))
+          assert(calls[#calls][1] == "eval_async" and calls[#calls][2]:find("formatOnSave", 1, true))
           vim.cmd.normal(" k")
-          local popup = calls[#calls]
-          assert(popup[1] == "whichkey.show", "shortcut help did not open native Which Key")
-          local found = {}
-          local function inspect_menu(items, prefix, direct)
-            for _, item in ipairs(items) do
-              local isDirect = direct or item.name == "Direct keys"
-              local sequence = isDirect and item.name == "Direct keys" and "" or prefix .. item.key
-              if item.bindings then
-                inspect_menu(item.bindings, sequence, isDirect)
-              else
-                found[sequence] = item
-                if sequence ~= "k" then
-                  local expected = isDirect and sequence or " " .. sequence
-                  assert(item.command == "vscode-neovim.send" and item.args == expected, "menu dispatch drift: " .. sequence)
-                end
-              end
-            end
+          local shortcutSearch = calls[#calls]
+          assert(shortcutSearch[1] == "eval_async", "shortcut help did not open VS Code Quick Pick")
+          assert(shortcutSearch[2]:find("Search Neovim shortcuts", 1, true), "shortcut Quick Pick is not searchable")
+          assert(shortcutSearch[2]:find("vscode-neovim.send", 1, true), "shortcut selection does not dispatch through vscode-neovim")
+          for _, key in ipairs({"Space sw", "Space st", "Space e", "Space tf", "Space gs", "gd", "H", "L"}) do
+            assert(shortcutSearch[2]:find('"label":"' .. key .. '"', 1, true), "shortcut missing from searchable help: " .. key)
           end
-          inspect_menu(popup[2].args[1], "", false)
-          assert(found.sw and found.st and found[" "] and found.e and found.tf and found.gs)
-          assert(found.gd and found.H and found.L, "direct mappings missing from shortcut menu")
-          assert(found.gd.args == "gd" and found.H.args == "H" and found.L.args == "L", "direct mapping sends incorrect sequence")
-          assert(not found.ts and not found.gl and not found.as, "standalone actions leaked into menu")
-          assert(found.k.command == "workbench.action.showCommands", "recursive menu help action")
+          for _, key in ipairs({"Space ts", "Space gl", "Space as"}) do
+            assert(not shortcutSearch[2]:find('"label":"' .. key .. '"', 1, true), "standalone shortcut leaked into VS Code help: " .. key)
+          end
         else
           for _, key in ipairs({"h", "j", "k", "l", "M", "s", "S"}) do
             assert(vim.fn.maparg(key, "n") == "", "native normal-mode key overwritten: " .. key)
