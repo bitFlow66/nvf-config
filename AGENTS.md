@@ -9,9 +9,6 @@ nix build .#default
 # Build the vsCodeSlim profile for vscode-neovim
 nix build .#vsCodeSlim
 
-# Exercise both profiles' shared editing and startup contracts
-nix build .#checks.x86_64-linux.vsCodeSlim .#checks.x86_64-linux.full
-
 # Run the configured Neovim (build + execute)
 nix run .
 
@@ -22,8 +19,9 @@ nix flake update
 nix flake check
 ```
 
-Validation uses `nix flake check`, package builds, and headless editing checks for
-both profiles. There is no separate test framework, linter, or typechecker.
+Use `nix flake check` for flake evaluation and build the relevant package when
+validating configuration changes. There is no separate test framework, linter,
+or typechecker.
 
 ## Repository Structure
 

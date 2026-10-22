@@ -40,11 +40,10 @@ it includes direct keys as well as leader bindings and does not require a separa
 Which Key extension. The binding guide describes the available shortcuts and
 returning editor focus.
 
-Validate both compositions and their generated-init startup paths with:
+Build either profile with:
 
 ```bash
 nix build .#vsCodeSlim
-nix build .#checks.x86_64-linux.vsCodeSlim .#checks.x86_64-linux.full
 ```
 
 ## Installed languages

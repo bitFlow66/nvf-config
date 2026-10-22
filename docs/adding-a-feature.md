@@ -109,22 +109,7 @@ Set `enable = false;` with a comment explaining why:
 }
 ```
 
-## 5. Testing
-
-Run the standard validation:
-
-```bash
-nix build .#default        # build the Neovim package
-nix build .#checks.x86_64-linux.full .#checks.x86_64-linux.vsCodeSlim
-nix flake check --no-build # evaluate all checks
-```
-
-The profile checks run the same C# inner/outer function/class and
-operator-pending textobject tests. They also assert the VS Code-specific
-inclusions and exclusions. Split features where profiles need independent
-capabilities rather than copying implementations into profile modules.
-
-## 6. Consuming from nixos-config
+## 5. Consuming from nixos-config
 
 The flake exposes NixOS and Home-Manager modules for integration:
 

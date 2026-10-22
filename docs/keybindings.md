@@ -215,23 +215,4 @@ Installing the full VSpaceCode or VSCodeVim stack is not required.
 For Dvorak, these mappings follow characters, not physical QWERTY key positions.
 Keep the active OS layout correct. If a key is intercepted or misidentified, use
 `Developer: Toggle Keyboard Shortcuts Troubleshooting` and
-`Developer: Inspect Key Mapping` before changing `keyboard.dispatch`. Local/client
-user keybindings are not validated by this repository's headless checks.
-
-## Validation
-
-The profile checks verify that the task mappings and surround grammar load in
-both profiles, that the slim profile excludes standalone-only shortcuts, and
-that representative editing behavior still works:
-
-```bash
-nix build .#checks.x86_64-linux.full .#checks.x86_64-linux.vsCodeSlim
-nix build .#full .#vsCodeSlim
-```
-
-Headless checks exercise surround edits, selection-preserving indentation,
-assistant command ranges, and VS Code action dispatch through a stubbed bridge.
-They do not execute VS Code commands. Interactive host behavior, Git operations,
-terminal keys, local shortcut conflicts, and Quick Pick usability still require a
-VS Code session. Command IDs must also be supported by the installed VS Code
-version and its built-in Git extension.
+`Developer: Inspect Key Mapping` before changing `keyboard.dispatch`.
